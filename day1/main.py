@@ -6,36 +6,59 @@ filename = "sample.txt" if len(sys.argv) == 1 else "input.txt"
 
 with open(filename) as file:
     content = file.read()
+part1 = content
 
-# Split the content into two parts based on a double newline
-part1, part2 = content.split('\n\n', 1)
-# print(part1)
-# print(part2)
 
 # Process part1 into a list of lists, splitting each line by ':' and stripping whitespace
-g1 = [[item.strip() for item in line.strip().split(':')] for line in part1.split('\n')]
+g1 = [[line.strip()[0], int(line.strip()[1:])] for line in part1.split('\n') if line.strip()]
 # print(g1)
 
-base_cached_dict = defaultdict(int)
-
-for item in g1:
-    if item[0] not in base_cached_dict:
-        base_cached_dict[item[0]] = int(item[1])
-
-# Process part2 into a list of lists, splitting each line by whitespace or '->' and stripping whitespace
-g2 = [[item.strip() for item in re.split(r'\s+|->', line) if item.strip()] for line in part2.split('\n')]
-print(g2)
 
 
 
 def part1():
-    return "part1 result"
+    sp = 50
+    index = 0
+    for d in g1:
+        d[1] = d[1] % 100
+        if d[0] == 'L':
+            sp = sp - d[1] + 100 if sp - d[1] < 0 else sp - d[1]
+        elif d[0] == 'R':
+            sp = sp + d[1] - 100 if sp + d[1] > 99 else sp + d[1]
+        else:
+            print("Unknown direction", d)
+        if sp == 0:
+            index += 1
+    return index
 
 
 
 
 def part2():
-    return "part2 result"
+    sp = 50
+    index = 0
+    for d in g1:
+        index += d[1] // 100
+        d[1] = d[1] % 100
+        if d[0] == 'L':
+            if sp - d[1] < 0:
+                if sp != 0:
+                    index += 1
+                sp = sp - d[1] + 100
+            else:
+                sp = sp - d[1]
+        elif d[0] == 'R':
+            if sp + d[1] > 99:
+                sp = sp + d[1] - 100
+                if sp != 0:
+                    index += 1
+            else:
+                sp = sp + d[1]
+        else:
+            print("Unknown direction", d)
+        if sp == 0:
+            index += 1
+    return index
 
 
 
