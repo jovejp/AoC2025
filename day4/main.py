@@ -1,6 +1,5 @@
 import  sys
-from collections import defaultdict
-import re
+from time import time
 
 filename = "sample.txt" if len(sys.argv) == 1 else "input.txt"
 
@@ -8,37 +7,67 @@ with open(filename) as file:
     content = file.read()
 
 # Split the content into two parts based on a double newline
-part1, part2 = content.split('\n\n', 1)
-# print(part1)
-# print(part2)
+part1 = content.split('\n')
+g1 = [[c for c in line] for line in part1]
 
-# Process part1 into a list of lists, splitting each line by ':' and stripping whitespace
-g1 = [[item.strip() for item in line.strip().split(':')] for line in part1.split('\n')]
-# print(g1)
-
-base_cached_dict = defaultdict(int)
-
-for item in g1:
-    if item[0] not in base_cached_dict:
-        base_cached_dict[item[0]] = int(item[1])
-
-# Process part2 into a list of lists, splitting each line by whitespace or '->' and stripping whitespace
-g2 = [[item.strip() for item in re.split(r'\s+|->', line) if item.strip()] for line in part2.split('\n')]
-print(g2)
-
+def count_around_at(grid):
+    rows = len(grid)
+    cols = len(grid[0])
+    result = [[0]*cols for _ in range(rows)]
+    directions = [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]
+    for x in range(rows):
+        for y in range(cols):
+            count = 0
+            if grid[x][y] == '.':
+                result[x][y] = 9
+                continue
+            for dx, dy in directions:
+                nx, ny = x+dx, y+dy
+                if 0 <= nx < rows and 0 <= ny < cols and grid[nx][ny] == '@':
+                    count += 1
+            result[x][y] = count
+    return result
 
 
 def part1():
-    return "part1 result"
+    result = count_around_at(g1)
+    count = sum(1 for row in result for v in row if v < 4)
+    return count
 
 
+def count_around_at_v2(grid):
+    sum_index = 0
+    rows = len(grid)
+    cols = len(grid[0])
+    directions = [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]
+    for x in range(rows):
+        for y in range(cols):
+            count = 0
+            if grid[x][y] == '.':
+                continue
+            for dx, dy in directions:
+                nx, ny = x+dx, y+dy
+                if 0 <= nx < rows and 0 <= ny < cols and grid[nx][ny] == '@':
+                    count += 1
+            if count < 4:
+                sum_index += 1
+                grid[x][y] = '.'
+    return sum_index, grid
 
 
 def part2():
-    return "part2 result"
+    result, grid = count_around_at_v2(g1)
+    while 1:
+        new_result, grid = count_around_at_v2(grid)
+        if new_result == 0:
+            break
+        result += new_result
+    return result
 
 
-
-
+t = time()
 print("Part one:", part1())
+print(time() - t)
+t = time()
 print("Part two:", part2())
+print(time() - t)
