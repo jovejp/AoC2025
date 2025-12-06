@@ -20,12 +20,11 @@ ops = {"+": operator.add, "*": operator.mul}
 
 
 def part1():
-    # print(sum(reduce(ops[col[-1]], col[:-1]) for col in zip(*rows)))
-    total = 0
-    for idx, col in enumerate(zip(*g1)):
-       # print("col:", col, "op:", idx)
-       total += reduce(ops[g2[idx]], col)
-    return total
+    # total = 0
+    # for col in zip(g2,*g1):
+    #     total += reduce(ops[col[0]], col[1:])
+    # return total
+    return sum(reduce(ops[col[0]], col[1:]) for col in zip(g2,*g1))
 
 
 def part2():
@@ -34,11 +33,9 @@ def part2():
     result = []
     for key, group in groupby(rotated, key=lambda row: ''.join(row).strip() != ''):
         if key:  
-            result.append([int(''.join(row).strip()) for row in group if ''.join(row).strip().isdigit()])
-    # print("Grouped Result:", result)
-    
-    idx_op = len(g2) - 1
-    return sum(reduce(ops[g2[idx_op - idx]], col) for idx, col in enumerate(result))
+            result.append([int(''.join(row).strip()) for row in group if ''.join(row).strip().isdigit()])    
+    g2_r = g2[::-1]
+    return sum(reduce(ops[g2_r[idx]], col) for idx, col in enumerate(result))
 
 
 t = time()
