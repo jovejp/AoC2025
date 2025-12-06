@@ -2,6 +2,7 @@ import  sys
 from time import time
 from functools import reduce
 import operator
+from itertools import groupby
 
 filename = "sample.txt" if len(sys.argv) == 1 else "input.txt"
 
@@ -30,35 +31,14 @@ def part1():
 def part2():
     # rotate g0 90 degrees clockwise
     rotated = list(zip(*g0))[::-1]
-
     result = []
-    current_group = []
-
-    for row in rotated:
-        combined = ''.join(row).strip()  # combine and strip spaces
-        if combined:  # if not a space line
-            try:
-                current_group.append(int(combined))  # convert to int and add to current group
-            except ValueError:
-                print(f"Error when convert to int: {combined}")
-        elif current_group:
-            result.append(current_group)
-            current_group = []
-        else:
-            print("error: empty line encountered with no current group")
-
-    # last group
-    if current_group:
-        result.append(current_group)
-    # print("Result:", result)
-
-    total = 0
+    for key, group in groupby(rotated, key=lambda row: ''.join(row).strip() != ''):
+        if key:  
+            result.append([int(''.join(row).strip()) for row in group if ''.join(row).strip().isdigit()])
+    # print("Grouped Result:", result)
+    
     idx_op = len(g2) - 1
-    for idx, col in enumerate(result):
-        # print("col:", col, "op:", idx)
-        total += reduce(ops[g2[idx_op-idx]], col)
-
-    return total
+    return sum(reduce(ops[g2[idx_op - idx]], col) for idx, col in enumerate(result))
 
 
 t = time()
