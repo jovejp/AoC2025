@@ -1,0 +1,10 @@
+[project]
+name = "aoc2025"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pulp>=3.3.0",
+    "z3-solver>=4.15.4.0",
+]

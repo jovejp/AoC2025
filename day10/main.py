@@ -1,10 +1,9 @@
-import  sys
 from time import time
 import re
 import itertools
 from collections import Counter
-import math
 from pulp import LpProblem, lpSum, LpVariable, LpMinimize, PULP_CBC_CMD
+from z3 import *
 
 filename = "sample.txt" if len(sys.argv) == 1 else "input.txt"
 
@@ -128,6 +127,28 @@ def count_valid_combinations_v3(parens_list, curly_set):
     return total_presses if total_presses > 0 else None
 
 
+def count_valid_combinations_v4(parens_list, curly_set):
+    # define z3 variables and solver
+    n = len(parens_list)
+    # z3 variables button press counts variables
+    btn_vars = [Int(f'btn_{i}') for i in range(n)]
+    s = Optimize()
+    # add conditions -1 ,  button press counts >= 0
+    for btn in btn_vars:
+        s.add(btn >= 0)
+    # add conditions button press counts to match curly_set
+    for num, target_count in enumerate(curly_set):
+        s.add(
+            Sum([btn_vars[i] * parens_list[i].count(num) for i in range(n)]) == target_count
+        )
+    # objective function: minimize total button presses
+    s.minimize(Sum(btn_vars))
+    # check satisfiability and get result
+    if s.check() == sat:
+        m = s.model()
+        total_presses = sum(m[v].as_long() for v in btn_vars)
+        return total_presses if total_presses > 0 else None
+    return None
 
 def part2():
     sum_total_2 = 0
@@ -136,7 +157,7 @@ def part2():
             continue
         # print(curly_set, "start processing")
         parens_list_sorted = sorted(parens_list, key=len, reverse=True)
-        count = count_valid_combinations_v3(parens_list_sorted, curly_set)
+        count = count_valid_combinations_v4(parens_list_sorted, curly_set)
         # print(curly_set, count)
         if count:
             sum_total_2 += count
@@ -150,3 +171,5 @@ print(time() - t)
 t = time()
 print("Part two:", part2())
 print(time() - t)
+# z3 - 0.6411697864532471
+# pulp - 1.0372817516326904
