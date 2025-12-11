@@ -12,24 +12,18 @@ part1 = content.split('\n')
 g1 =  { line.split(':')[0]: line.split(':')[1].split() for line in part1 if line }
 
 
-
-def parse_line(line):
-    key, values = line.split(":")
-    value_list = values.strip().split()
-    return {key.strip(): value_list}
-g1 = {k: v for line in part1 if line.strip() for k, v in parse_line(line).items()}
-# print("Parsed input:", g1)
-
-
-def count_paths(g1, start, end):
+cached_1_counts = {}
+def count_paths(start, end):
     if start == end:
         return 1
     if start not in g1:
         return 0
-    return sum(count_paths(g1, next_key, end) for next_key in g1[start])
+    if start not in cached_1_counts:
+        cached_1_counts[start] = sum(count_paths(next_key, end) for next_key in g1[start])
+    return cached_1_counts[start]
 
 def part1():
-    total_paths = count_paths(g1, 'you', 'out')
+    total_paths = count_paths('you', 'out')
     return total_paths
 
 cached_counts = {}
