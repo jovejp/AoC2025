@@ -1,6 +1,5 @@
 import  sys
 from time import time
-import networkx as nx
 
 filename = "sample.txt" if len(sys.argv) == 1 else "input.txt"
 
